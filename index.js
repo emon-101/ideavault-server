@@ -79,6 +79,17 @@ async function run() {
         });
       }
     });
+
+    app.get("/trending-ideas", async (req, res) => {
+      const result = await ideaCollection
+        .find()
+        .sort({ createdAt: -1 }) 
+        .limit(6)
+        .toArray();
+
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
