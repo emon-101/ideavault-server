@@ -25,7 +25,82 @@ async function run() {
 
     const db = client.db("ideavault");
     const ideaCollection = db.collection("ideas");
+    const commentCollection = db.collection("comments");
 
+    // this for saving comments
+    app.post("/comments", async (req, res) => {
+      try {
+        const commentData = {
+          ...req.body,
+          createdAt: new Date(),
+        };
+
+        const result = await commentCollection.insertOne(commentData);
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({
+          message: error.message,
+        });
+      }
+    });
+
+    app.get("/comments/:ideaId", async (req, res) => {
+      try {
+        const { ideaId } = req.params;
+
+        const result = await commentCollection
+          .find({ ideaId })
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({
+          message: error.message,
+        });
+      }
+    });
+
+    app.patch("/comments/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+
+        const result = await commentCollection.updateOne(
+          {
+            _id: new ObjectId(id),
+          },
+          {
+            $set: {
+              comment: req.body.comment,
+            },
+          },
+        );
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({
+          message: error.message,
+        });
+      }
+    });
+
+    app.delete("/comments/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+
+        const result = await commentCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({
+          message: error.message,
+        });
+      }
+    });
+    // This for idea collection
     app.post("/idea", async (req, res) => {
       const ideaData = {
         ...req.body,
@@ -83,18 +158,18 @@ async function run() {
     app.get("/trending-ideas", async (req, res) => {
       const result = await ideaCollection
         .find()
-        .sort({ createdAt: -1 }) 
+        .sort({ createdAt: -1 })
         .limit(6)
         .toArray();
 
       res.send(result);
     });
 
-    app.get('/idea/:id', async(req, res) => {
-      const {id} = req.params;
-      const result = await ideaCollection.findOne({_id: new ObjectId(id)});
+    app.get("/idea/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await ideaCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
-    })
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
