@@ -100,6 +100,18 @@ async function run() {
         });
       }
     });
+
+    // this is for my ideas
+    app.get("/my-ideas/:userId", async (req, res) => {
+      const { userId } = req.params;
+
+      const ideas = await ideaCollection
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      res.send(ideas);
+    });
     // This for idea collection
     app.post("/idea", async (req, res) => {
       const ideaData = {
