@@ -124,6 +124,30 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/idea/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedData = req.body;
+
+      const result = await ideaCollection.updateOne(
+        { _id: new ObjectId(id) },
+        {
+          $set: updatedData,
+        },
+      );
+
+      res.send(result);
+    });
+
+    app.delete("/idea/:id", async (req, res) => {
+      const { id } = req.params;
+
+      const result = await ideaCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      res.send(result);
+    });
+
     app.get("/idea", async (req, res) => {
       try {
         const { search, category, sort } = req.query;
