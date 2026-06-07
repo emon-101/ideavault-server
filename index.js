@@ -26,6 +26,7 @@ async function run() {
     const db = client.db("ideavault");
     const ideaCollection = db.collection("ideas");
     const commentCollection = db.collection("comments");
+    const usersCollection = db.collection("user");
 
     // this for saving comments
     app.post("/comments", async (req, res) => {
@@ -229,6 +230,33 @@ async function run() {
       const { id } = req.params;
       const result = await ideaCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
+    });
+
+    // This is for users
+    app.patch("/users/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { name, image } = req.body;
+
+        const result = await usersCollection.updateOne(
+          {
+            _id: new ObjectId(id),
+          },
+          {
+            $set: {
+              name,
+              image,
+              updatedAt: new Date(),
+            },
+          },
+        );
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({
+          message: error.message,
+        });
+      }
     });
 
     await client.db("admin").command({ ping: 1 });
