@@ -127,7 +127,7 @@ async function run() {
       }
     });
 
-    app.get("/my-interactions/:userId", async (req, res) => {
+    app.get("/my-interactions/:userId",verifyToken, async (req, res) => {
       const { userId } = req.params;
 
       const comments = await commentCollection
@@ -152,7 +152,7 @@ async function run() {
     });
 
     // this is for my ideas
-    app.get("/my-ideas/:userId", async (req, res) => {
+    app.get("/my-ideas/:userId",verifyToken, async (req, res) => {
       const { userId } = req.params;
 
       const ideas = await ideaCollection
@@ -163,7 +163,7 @@ async function run() {
       res.send(ideas);
     });
     // This for idea collection
-    app.post("/idea", async (req, res) => {
+    app.post("/idea", verifyToken, async (req, res) => {
       const ideaData = {
         ...req.body,
         createdAt: new Date(),
