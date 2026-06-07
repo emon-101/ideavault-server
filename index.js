@@ -101,6 +101,30 @@ async function run() {
       }
     });
 
+    app.get("/my-interactions/:userId", async (req, res) => {
+      const { userId } = req.params;
+
+      const comments = await commentCollection
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      const result = await Promise.all(
+        comments.map(async (comment) => {
+          const idea = await ideaCollection.findOne({
+            _id: new ObjectId(comment.ideaId),
+          });
+
+          return {
+            ...comment,
+            ideaTitle: idea?.ideaTitle,
+          };
+        }),
+      );
+
+      res.send(result);
+    });
+
     // this is for my ideas
     app.get("/my-ideas/:userId", async (req, res) => {
       const { userId } = req.params;
